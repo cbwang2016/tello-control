@@ -41,11 +41,11 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 		drone.On(tello.FlightDataEvent, func(data interface{}) {
 			fmt.Println("Flight Data")
 			fd := data.(*tello.FlightData)
-			fmt.Printf("\rBatt: %d%%, Height: %.1fm, Hover: %d, Sky: %d, Ground: %d, Open: %d\n",
+			fmt.Printf("\rBatt: %d%%, Height: %.1fm, Hover: %t, Sky: %t, Ground: %t, Open: %t, WifiStrength: %d\n",
 				fd.BatteryPercentage,
 				float32(fd.Height)/10,
 				fd.DroneHover,
-				fd.EmSky, fd.EmGround, fd.EmOpen)
+				fd.EmSky, fd.EmGround, fd.EmOpen, fd.WifiStrength)
 		})
 
 
