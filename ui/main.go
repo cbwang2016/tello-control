@@ -7,6 +7,12 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"../drone"
 	"math"
+	
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/goregular"
+	"github.com/hajimehoshi/ebiten/text"
+	"image/color"
 )
 
 const (
@@ -35,44 +41,40 @@ func remapAxisInput(inputValue float64, deadZone float64, maxValue float64) int 
 	return 0
 }
 
-func getV(fastMode bool) int {
-	if(fastMode) {
-		return 100
-	} else {
-		return 50
-	}
-}
-
-func Start(videoChannel chan *image.Image, commandChannel chan interface{}) {
+func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flightData chan string) {
 	var lastImage *ebiten.Image = nil
 	//var tookOff = false
-	var fastMode = false
+	var localFlightData string
+	tt, err := truetype.Parse(goregular.TTF)
+	if err != nil {
+		log.Fatal(err)
+	}
+	uiFont := truetype.NewFace(tt, &truetype.Options{
+		Size:    12,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
 
 	update := func (screen *ebiten.Image) error {
 		for _, id := range inpututil.JustConnectedGamepadIDs() {
 			log.Printf("gamepad connected: id: %d", id)
 		}
-		
-		if(inpututil.IsKeyJustPressed(ebiten.KeyF)) {
-			fastMode = !fastMode;
-			log.Printf("Toggled fastMode. Now fastMode is %t", fastMode);
-		}
 
 		if(inpututil.IsKeyJustPressed(ebiten.KeyA)) {
-			commandChannel <- drone.RotateCounterClockwiseCommand{getV(fastMode)}
+			commandChannel <- drone.RotateCounterClockwiseCommand{100}
 		}
 		if(inpututil.IsKeyJustPressed(ebiten.KeyD)) {
-			commandChannel <- drone.RotateClockwiseCommand{getV(fastMode)}
+			commandChannel <- drone.RotateClockwiseCommand{100}
 		}
 		if(inpututil.IsKeyJustReleased(ebiten.KeyA) || inpututil.IsKeyJustReleased(ebiten.KeyD)) {
 			commandChannel <- drone.RotateClockwiseCommand{0}
 		}
 		
 		if(inpututil.IsKeyJustPressed(ebiten.KeyW)) {
-			commandChannel <- drone.UpCommand{getV(fastMode)}
+			commandChannel <- drone.UpCommand{100}
 		}
 		if(inpututil.IsKeyJustPressed(ebiten.KeyS)) {
-			commandChannel <- drone.DownCommand{getV(fastMode)}
+			commandChannel <- drone.DownCommand{100}
 		}
 		if(inpututil.IsKeyJustReleased(ebiten.KeyW) || inpututil.IsKeyJustReleased(ebiten.KeyS)) {
 			commandChannel <- drone.UpCommand{0}
@@ -82,13 +84,13 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}) {
 			if inpututil.KeyPressDuration(ebiten.KeyControl) > 0 {
 				commandChannel <- drone.FlipForwardCommand{}
 			}
-			commandChannel <- drone.ForwardCommand{getV(fastMode)}
+			commandChannel <- drone.ForwardCommand{100}
 		}
 		if(inpututil.IsKeyJustPressed(ebiten.KeyDown)) {
 			if inpututil.KeyPressDuration(ebiten.KeyControl) > 0 {
 				commandChannel <- drone.FlipBackwardCommand{}
 			}
-			commandChannel <- drone.BackwardCommand{getV(fastMode)}
+			commandChannel <- drone.BackwardCommand{100}
 		}
 		if(inpututil.IsKeyJustReleased(ebiten.KeyDown) || inpututil.IsKeyJustReleased(ebiten.KeyUp)) {
 			commandChannel <- drone.ForwardCommand{0}
@@ -98,13 +100,13 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}) {
 			if inpututil.KeyPressDuration(ebiten.KeyControl) > 0 {
 				commandChannel <- drone.FlipLeftCommand{}
 			}
-			commandChannel <- drone.LeftCommand{getV(fastMode)}
+			commandChannel <- drone.LeftCommand{100}
 		}
 		if(inpututil.IsKeyJustPressed(ebiten.KeyRight)) {
 			if inpututil.KeyPressDuration(ebiten.KeyControl) > 0 {
 				commandChannel <- drone.FlipRightCommand{}
 			}
-			commandChannel <- drone.RightCommand{getV(fastMode)}
+			commandChannel <- drone.RightCommand{100}
 		}
 		if(inpututil.IsKeyJustReleased(ebiten.KeyLeft) || inpututil.IsKeyJustReleased(ebiten.KeyRight)) {
 			commandChannel <- drone.LeftCommand{0}
@@ -122,17 +124,20 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}) {
 		}
 
 		select {
-		case videoImage := <-videoChannel:
-			var err error
-			lastImage, err = ebiten.NewImageFromImage(*videoImage, ebiten.FilterDefault)
-			if err != nil {
-				panic("Unable to create image")
-			}
-		default:
+			case videoImage := <-videoChannel:
+				var err error
+				lastImage, err = ebiten.NewImageFromImage(*videoImage, ebiten.FilterDefault)
+				if err != nil {
+					panic("Unable to create image")
+				}
+			case localFlightData = <-flightData:
+
+			default:
 		}
 
 		if lastImage != nil {
 			screen.DrawImage(lastImage, nil)
+			text.Draw(screen, localFlightData, uiFont, 20, 20, color.White)
 		}
 
 		return nil

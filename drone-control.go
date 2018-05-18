@@ -10,6 +10,7 @@ import (
 
 var videoChannel = make(chan *image.Image)
 var commandChannel = make(chan interface{})
+var flightData = make(chan string)
 
 func main() {
 	err := decoder.Init()
@@ -19,7 +20,7 @@ func main() {
 
 	defer decoder.Free()
 
-	go drone.DroneControl(videoChannel, commandChannel)
+	go drone.DroneControl(videoChannel, commandChannel, flightData)
 
-	ui.Start(videoChannel, commandChannel)
+	ui.Start(videoChannel, commandChannel, flightData)
 }

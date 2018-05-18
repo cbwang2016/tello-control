@@ -11,7 +11,8 @@ import (
 	"os"
 )
 
-func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{}) {
+func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{}, flightData chan string) {
+	var localFlightData string
 	os.MkdirAll("recordings", os.ModePerm)
 	t := time.Now()
 
@@ -39,13 +40,41 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 		})
 
 		drone.On(tello.FlightDataEvent, func(data interface{}) {
-			fmt.Println("Flight Data")
 			fd := data.(*tello.FlightData)
-			fmt.Printf("\rBatt: %d%%, Height: %.1fm, Hover: %t, Sky: %t, Ground: %t, Open: %t, WifiStrength: %d\n",
-				fd.BatteryPercentage,
-				float32(fd.Height)/10,
+			localFlightData = ""
+			if (fd.BatteryLow) {
+				localFlightData += "Warning: BatteryLow!"
+			}
+			if (fd.BatteryLower) {
+				localFlightData += "Warning: BatteryLower!"
+			}
+			if (fd.BatteryState) {
+				localFlightData += "Warning: BatteryState!"
+			}
+			if (fd.DownVisualState) {
+				localFlightData += "Warning: DownVisualState!"
+			}
+			if (fd.GravityState) {
+				localFlightData += "Warning: GravityState!"
+			}
+			if (fd.ImuState) {
+				localFlightData += "Warning: ImuState!"
+			}
+			if (fd.PowerState) {
+				localFlightData += "Warning: PowerState!"
+			}
+			if (fd.PressureState) {
+				localFlightData += "Warning: PressureState!"
+			}
+			if (fd.WindState) {
+				localFlightData += "Warning: WindState!"
+			}
+			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, Height: %.1fm, Speed: %.1fm, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
+				fd.BatteryPercentage, fd.WifiStrength,
+				float32(fd.Height)/10, float32(fd.GroundSpeed)/10,
 				fd.DroneHover,
-				fd.EmSky, fd.EmGround, fd.EmOpen, fd.WifiStrength)
+				fd.EmSky, fd.EmGround, fd.EmOpen, fd.LightStrength)
+			flightData <- localFlightData
 		})
 
 
