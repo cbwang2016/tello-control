@@ -13,6 +13,7 @@ import (
 
 func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{}, flightData chan string) {
 	var localFlightData string
+	var fd *tello.FlightData
 	os.MkdirAll("recordings", os.ModePerm)
 	t := time.Now()
 
@@ -39,8 +40,12 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 			})
 		})
 
+		drone.On(tello.LightStrengthEvent, func(data interface{}) {
+			fd.LightStrength = data.(int16)
+		})
+
 		drone.On(tello.FlightDataEvent, func(data interface{}) {
-			fd := data.(*tello.FlightData)
+			fd = data.(*tello.FlightData)
 			localFlightData = ""
 			if (fd.BatteryLow) {
 				localFlightData += "Warning: BatteryLow!"
@@ -69,9 +74,9 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 			if (fd.WindState) {
 				localFlightData += "Warning: WindState!"
 			}
-			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, Height: %.1fm, Speed: %.1fm, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
+			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, Height: %.1fm, Speed: %.1fm/s, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
 				fd.BatteryPercentage, fd.WifiStrength,
-				float32(fd.Height)/10, float32(fd.GroundSpeed)/10,
+				float32(fd.Height)/10, float32(fd.FlySpeed)/10,
 				fd.DroneHover,
 				fd.EmSky, fd.EmGround, fd.EmOpen, fd.LightStrength)
 			flightData <- localFlightData
