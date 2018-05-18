@@ -13,7 +13,7 @@ import (
 
 func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{}, flightData chan string) {
 	var localFlightData string
-	var fd *tello.FlightData
+	var fd tello.FlightData
 	os.MkdirAll("recordings", os.ModePerm)
 	t := time.Now()
 
@@ -44,39 +44,55 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 			fd.LightStrength = data.(int16)
 		})
 
+		drone.On(tello.WifiDataEvent, func(data interface{}) {
+			tmp := data.(*tello.WifiData)
+			fd.WifiStrength = tmp.Strength
+			fd.WifiDisturb = tmp.Disturb
+		})
+
 		drone.On(tello.FlightDataEvent, func(data interface{}) {
-			fd = data.(*tello.FlightData)
+			fd2 := data.(*tello.FlightData)
+			fd.BatteryPercentage = fd2.BatteryPercentage
+			fd.Height = fd2.Height
+			fd.GroundSpeed = fd2.GroundSpeed
+			fd.DroneHover = fd2.DroneHover
+			fd.EmSky = fd2.EmSky
+			fd.EmGround = fd2.EmGround
+			fd.EmOpen = fd2.EmOpen
 			localFlightData = ""
-			if (fd.BatteryLow) {
-				localFlightData += "Warning: BatteryLow!"
+			if (fd2.BatteryLow) {
+				localFlightData += "Warning: BatteryLow! "
 			}
-			if (fd.BatteryLower) {
-				localFlightData += "Warning: BatteryLower!"
+			if (fd2.BatteryLower) {
+				localFlightData += "Warning: BatteryLower! "
 			}
-			if (fd.BatteryState) {
-				localFlightData += "Warning: BatteryState!"
+			if (fd2.BatteryState) {
+				localFlightData += "Warning: BatteryState! "
 			}
-			if (fd.DownVisualState) {
-				localFlightData += "Warning: DownVisualState!"
+			if (fd2.DownVisualState) {
+				localFlightData += "Warning: DownVisualState! "
 			}
-			if (fd.GravityState) {
-				localFlightData += "Warning: GravityState!"
+			if (fd2.GravityState) {
+				localFlightData += "Warning: GravityState! "
 			}
-			if (fd.ImuState) {
-				localFlightData += "Warning: ImuState!"
+			if (fd2.ImuState) {
+				localFlightData += "Warning: ImuState! "
 			}
-			if (fd.PowerState) {
-				localFlightData += "Warning: PowerState!"
+			if (fd2.PowerState) {
+				localFlightData += "Warning: PowerState! "
 			}
-			if (fd.PressureState) {
-				localFlightData += "Warning: PressureState!"
+			if (fd2.PressureState) {
+				localFlightData += "Warning: PressureState! "
 			}
-			if (fd.WindState) {
-				localFlightData += "Warning: WindState!"
+			if (fd2.WindState) {
+				localFlightData += "Warning: WindState! "
 			}
-			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, Height: %.1fm, Speed: %.1fm/s, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
-				fd.BatteryPercentage, fd.WifiStrength,
-				float32(fd.Height)/10, float32(fd.FlySpeed)/10,
+			if (fd2.WifiDisturb != 0) {
+				localFlightData += "Warning: WifiDisturb! "
+			}
+			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, WifiDisturb: %d, Height: %.1fm, Speed: %.1fm/s, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
+				fd.BatteryPercentage, fd.WifiStrength, fd.WifiDisturb,
+				float32(fd.Height)/10, float32(fd.GroundSpeed)/10,
 				fd.DroneHover,
 				fd.EmSky, fd.EmGround, fd.EmOpen, fd.LightStrength)
 			flightData <- localFlightData
