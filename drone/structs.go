@@ -4,6 +4,10 @@ type TakeOffCommand struct {
 
 }
 
+type ThrowTakeOffCommand struct {
+
+}
+
 type LandCommand struct {
   
 }

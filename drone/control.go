@@ -120,6 +120,9 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 				case TakeOffCommand:
 					log.Printf("Going to take off, %q", cmd)
 					drone.TakeOff()
+				case ThrowTakeOffCommand:
+					log.Printf("Going to (Throw & Go)take off, %q", cmd)
+					drone.ThrowTakeOff()
 				case LandCommand:
 					log.Printf("Going to land, %q", cmd)
 					drone.Land()

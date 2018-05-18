@@ -40,6 +40,7 @@ After a couple of seconds a video feed should appear - if it doesn't, then somet
 - Ctrl+Right - Flip right
 
 - T - Take off
+- Ctrl+T - (Throw & Go)Take off
 - L - Land
 
 ## Preqrequisites

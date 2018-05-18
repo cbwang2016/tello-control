@@ -113,7 +113,11 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flig
 		}
 		
 		if(inpututil.IsKeyJustReleased(ebiten.KeyT)) {
-			commandChannel <- drone.TakeOffCommand{}
+			if inpututil.KeyPressDuration(ebiten.KeyControl) > 0 {
+				commandChannel <- drone.ThrowTakeOffCommand{}
+			} else {
+				commandChannel <- drone.TakeOffCommand{}
+			}
 		}
 		if(inpututil.IsKeyJustReleased(ebiten.KeyL)) {
 			commandChannel <- drone.LandCommand{}
