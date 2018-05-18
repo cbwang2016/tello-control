@@ -9,7 +9,18 @@ What works:
 * Video stream
 * Flip controls work most of the time
 * Flight data display(battery, height, speed, etc.)
-![Preview](https://cbwang2016.github.io/images/Drone%20Control%202018_5_18%209_10_40.png)
+![Preview](https://cbwang2016.github.io/images/Drone%20Control%202018_5_18%209_28_09.png)
+
+## Usage
+
+Fow Windows: download the exe file and three dlls. Remember to allow network access(Private & Public networks) in the Windows Firewall warning.
+
+* Turn on the Tello
+* Wait for it to initialise (flashing orange LED)
+* Connect your computer to the Tello WiFi
+* Run the exe
+
+After a couple of seconds a video feed should appear - if it doesn't, then something is wrong so do not attempt to fly the Tello! You can try to rerun the exe if there's no video.
 
 ## Keyboard mappings
 
@@ -28,15 +39,10 @@ What works:
 - Ctrl+Left - Flip left
 - Ctrl+Right - Flip right
 
-### Buttons
 - T - Take off
 - L - Land
 
 ## Preqrequisites
 
 * libavcodec - Used for decoding H.264 packets
-* Gobot dev - dev version of gobot
-
-## Installation
-
-Download the exe file and three dlls. Remember to allow Windows Firewall warning.
+* Gobot dev - dev branch of gobot
