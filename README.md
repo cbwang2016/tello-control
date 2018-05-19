@@ -7,6 +7,7 @@ Very early version with a lot of hacks. Based on https://github.com/socketbind/d
 What works:
 * Basic controls using a keyboard (up, down, rotate left, rotate right, forward, backward, left, right)
 * Video stream
+* Video save
 * Flip controls work most of the time
 * Flight data display(battery, height, speed, etc.)
 ![Preview](https://cbwang2016.github.io/images/Drone%20Control%202018_5_18%209_28_09.png)
@@ -21,6 +22,11 @@ Fow Windows: download the exe file and three dlls. Remember to allow network acc
 * Run the exe
 
 After a couple of seconds a video feed should appear - if it doesn't, then something is wrong so do not attempt to fly the Tello! You can try to rerun the exe if there's no video.
+
+The recorded videos are in the "recordings/" folder. To convert it to a mp4 file, run:
+```
+ffmpeg -i "source.nal" -c:v copy -f mp4 "myOutputFile.mp4"
+```
 
 ## Keyboard mappings
 
