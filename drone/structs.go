@@ -12,6 +12,14 @@ type LandCommand struct {
   
 }
 
+type SetFastModeCommand struct {
+	
+}
+
+type SetSlowModeCommand struct {
+	
+}
+
 type RotateClockwiseCommand struct {
 	Value int
 }

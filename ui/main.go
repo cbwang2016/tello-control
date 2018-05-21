@@ -44,6 +44,7 @@ func remapAxisInput(inputValue float64, deadZone float64, maxValue float64) int 
 func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flightData chan string) {
 	var lastImage *ebiten.Image = nil
 	//var tookOff = false
+	var isFastMode = false
 	var localFlightData string
 	tt, err := truetype.Parse(goregular.TTF)
 	if err != nil {
@@ -58,6 +59,15 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flig
 	update := func (screen *ebiten.Image) error {
 		for _, id := range inpututil.JustConnectedGamepadIDs() {
 			log.Printf("gamepad connected: id: %d", id)
+		}
+
+		if(inpututil.IsKeyJustPressed(ebiten.KeyF)) {
+			if (isFastMode) {
+				commandChannel <- drone.SetSlowModeCommand{}
+			} else {
+				commandChannel <- drone.SetFastModeCommand{}
+			}
+			isFastMode = !isFastMode
 		}
 
 		if(inpututil.IsKeyJustPressed(ebiten.KeyA)) {
@@ -141,7 +151,11 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flig
 
 		if lastImage != nil {
 			screen.DrawImage(lastImage, nil)
-			text.Draw(screen, localFlightData, uiFont, 20, 20, color.White)
+			if isFastMode {
+				text.Draw(screen, localFlightData + ", Mode: Fast", uiFont, 20, 20, color.White)
+			} else {
+				text.Draw(screen, localFlightData + ", Mode: Slow", uiFont, 20, 20, color.White)
+			}
 		}
 
 		return nil

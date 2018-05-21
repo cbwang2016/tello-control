@@ -91,11 +91,10 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 			if (fd2.WifiDisturb != 0) {
 				localFlightData += "Warning: WifiDisturb! "
 			}
-			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, WifiDisturb: %d, Height: %.1fm, NorthSpeed: %.1fm/s, EastSpeed: %.1fm/s, Hover: %t, Sky: %t, Ground: %t, Open: %t, LightStrength: %d",
+			localFlightData += fmt.Sprintf("Batt: %d%%, WifiStrength: %d, WifiDisturb: %d, Height: %.1fm, NorthSpeed: %.1fm/s, EastSpeed: %.1fm/s, LightStrength: %d",
 				fd.BatteryPercentage, fd.WifiStrength, fd.WifiDisturb,
 				float32(fd.Height)/10, float32(fd.NorthSpeed)/10, float32(fd.EastSpeed)/10,
-				fd.DroneHover,
-				fd.EmSky, fd.EmGround, fd.EmOpen, fd.LightStrength)
+				fd.LightStrength)
 			flightData <- localFlightData
 		})
 
@@ -126,6 +125,12 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 				case LandCommand:
 					log.Printf("Going to land, %q", cmd)
 					drone.Land()
+				case SetFastModeCommand:
+					log.Printf("Setting Fast Mode", cmd)
+					drone.SetFastMode()
+				case SetSlowModeCommand:
+					log.Printf("Setting Slow Mode", cmd)
+					drone.SetSlowMode()
 				case RotateCounterClockwiseCommand:
 					log.Printf("Rotating counter-clockwise %d", cmd.Value)
 					drone.CounterClockwise(cmd.Value)
