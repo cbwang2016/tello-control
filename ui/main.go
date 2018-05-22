@@ -132,6 +132,9 @@ func Start(videoChannel chan *image.Image, commandChannel chan interface{}, flig
 		if(inpututil.IsKeyJustReleased(ebiten.KeyL)) {
 			commandChannel <- drone.LandCommand{}
 		}
+		if(inpututil.IsKeyJustReleased(ebiten.KeyC)) {
+			commandChannel <- drone.StopLandingCommand{}
+		}
 
 		if ebiten.IsRunningSlowly() {
 			return nil

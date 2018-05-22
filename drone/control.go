@@ -34,7 +34,7 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 		drone.On(tello.ConnectedEvent, func(data interface{}) {
 			fmt.Println("Connected")
 			drone.StartVideo()
-			drone.SetVideoEncoderRate(5)
+			drone.SetVideoEncoderRate(0)
 			gobot.Every(100*time.Millisecond, func() {
 				drone.StartVideo()
 			})
@@ -125,11 +125,14 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 				case LandCommand:
 					log.Printf("Going to land, %q", cmd)
 					drone.Land()
+				case StopLandingCommand:
+					log.Printf("Stop landing, %q", cmd)
+					drone.StopLanding()
 				case SetFastModeCommand:
-					log.Printf("Setting Fast Mode", cmd)
+					log.Printf("Setting Fast Mode, %q", cmd)
 					drone.SetFastMode()
 				case SetSlowModeCommand:
-					log.Printf("Setting Slow Mode", cmd)
+					log.Printf("Setting Slow Mode, %q", cmd)
 					drone.SetSlowMode()
 				case RotateCounterClockwiseCommand:
 					log.Printf("Rotating counter-clockwise %d", cmd.Value)

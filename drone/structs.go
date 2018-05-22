@@ -12,6 +12,10 @@ type LandCommand struct {
   
 }
 
+type StopLandingCommand struct {
+  
+}
+
 type SetFastModeCommand struct {
 	
 }

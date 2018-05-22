@@ -48,6 +48,7 @@ ffmpeg -i "source.nal" -c:v copy -f mp4 "myOutputFile.mp4"
 - T - Take off
 - Ctrl+T - (Throw & Go)Take off
 - L - Land
+- C - Stop landing
 - F - Fast/Slow mode switch
 
 ## Preqrequisites
