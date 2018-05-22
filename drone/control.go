@@ -35,7 +35,7 @@ func DroneControl(videoChannel chan *image.Image, commandChannel chan interface{
 			fmt.Println("Connected")
 			drone.StartVideo()
 			drone.SetVideoEncoderRate(0)
-			gobot.Every(100*time.Millisecond, func() {
+			gobot.Every(500*time.Millisecond, func() {
 				drone.StartVideo()
 			})
 		})
